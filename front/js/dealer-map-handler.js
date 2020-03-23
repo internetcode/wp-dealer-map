@@ -7,26 +7,26 @@ var $j = jQuery.noConflict();
             popups = [],
             infoPopup,
             geocoder,
-            mainIcon = grim_dealers.mainIcon,
-            youIcon = grim_dealers.youIcon,
-            myshadow = grim_dealers.myshadow,
+            mainIcon = dealer_map.mainIcon,
+            youIcon = dealer_map.youIcon,
+            myshadow = dealer_map.myshadow,
             find_directions,
             directS,
             directD,
             to_marker,
-            map_type = grim_dealers.map_type,
-            zoomer = parseInt(grim_dealers.map_zoom),
-            marker_event = grim_dealers.marker_event,
-            drop_bounce = grim_dealers.drop_b,
-            gDirect = grim_dealers.get_direct,
-            noStores = grim_dealers.nostores,
-            yourPosition = grim_dealers.yourlocation,
-            error_noS = grim_dealers.error_nos,
-            error_noD = grim_dealers.error_nod,
-            error_aD = grim_dealers.address_err,
-            error_oP = grim_dealers.error_onpage,
-            num_of_Col = grim_dealers.colnum,
-            ajax_error = grim_dealers.aj_error;
+            map_type = dealer_map.map_type,
+            zoomer = parseInt(dealer_map.map_zoom),
+            marker_event = dealer_map.marker_event,
+            drop_bounce = dealer_map.drop_b,
+            gDirect = dealer_map.get_direct,
+            noStores = dealer_map.nostores,
+            yourPosition = dealer_map.yourlocation,
+            error_noS = dealer_map.error_nos,
+            error_noD = dealer_map.error_nod,
+            error_aD = dealer_map.address_err,
+            error_oP = dealer_map.error_onpage,
+            num_of_Col = dealer_map.colnum,
+            ajax_error = dealer_map.aj_error;
  
     function inite() {
 
@@ -40,7 +40,7 @@ var $j = jQuery.noConflict();
         });
         var mapOptions = {
             zoom: zoomer,
-            center: new google.maps.LatLng(grim_dealers.start_lat, grim_dealers.start_lng),
+            center: new google.maps.LatLng(dealer_map.start_lat, dealer_map.start_lng),
             mapTypeId: map_type
         };
         map = new google.maps.Map(document.getElementById('store_map'),
@@ -89,7 +89,7 @@ var $j = jQuery.noConflict();
                 myicon = youIcon;
                 mydrag = true;
             }else if(markersCoords[i].marker_pro === "pro"){
-                myicon = grim_dealers.proIcon;
+                myicon = dealer_map.proIcon;
             }
             var myLatlng = new google.maps.LatLng(markersCoords[i].lat,markersCoords[i].lng);
 
@@ -154,9 +154,9 @@ var $j = jQuery.noConflict();
        
         $j.ajax({
             type: 'GET', // use $j_GET method to submit data
-            url: grim_dealers.ajaxurl,
+            url: dealer_map.ajaxurl,
             data: { action: 'dealer_search', // where to submit the data
-                    security: grim_dealers.grimnonce,
+                    security: dealer_map.dealer_mapnonce,
                     lat: lat,
                     lng: lng,
                     radius: within_distance,
@@ -176,7 +176,8 @@ var $j = jQuery.noConflict();
         popups = data.popup;
         markersCoords.length=0;
         addresses.length=0;
-        if(data.stores !== null) {
+        //console.log(data.stores);
+        if(data.stores !== null && data.stores !== undefined ) {
             clear_Errmsg();
             if(data.you){
                 markersCoords.push({lat: data.you.lat, lng: data.you.lng, id: 0, address:'', marker_pro:''});
@@ -203,9 +204,9 @@ var $j = jQuery.noConflict();
     function storefindh3(storesFinded, defa) {
         var storesFind = $j('#store_finded');
         var html = '';
-        var within_distance = (defa) ? grim_dealers.defrange : $j("#within_distance").val();
-        var from_zip = (defa) ? grim_dealers.defadress : $j("#address_search").val();
-            html = "<h3>"+storesFinded+" "+grim_dealers.found+" "+within_distance+" "+grim_dealers.units+" "+grim_dealers.from+" "+from_zip+"</h3>";
+        var within_distance = (defa) ? dealer_map.defrange : $j("#within_distance").val();
+        var from_zip = (defa) ? dealer_map.defadress : $j("#address_search").val();
+            html = "<h3>"+storesFinded+" "+dealer_map.found+" "+within_distance+" "+dealer_map.units+" "+dealer_map.from+" "+from_zip+"</h3>";
            // console.log(storesFind.length);    
         if ( storesFind.length !== 0 ) {
             $j('#store_finded h3').remove();
@@ -227,7 +228,7 @@ var $j = jQuery.noConflict();
             }
             website="<div class='store_website'><a href='" + addresses[i].website + "' target='_blank'>" + addresses[i].website +"</a></div>";            
             if(addresses[i].marker_pro != "main"){
-                pin_colour = " style='background-image:url(\""+grim_dealers.proSerie+"\")' ";
+                pin_colour = " style='background-image:url(\""+dealer_map.proSerie+"\")' ";
             }
             html = html + "<li class=\""+num_of_Col+"\"  "+pin_colour+" onmouseover='hoverStart("+addresses[i].id+")' onmouseout='hoverStop("+addresses[i].id+")'><div class='distance'>"+addresses[i].distance+"</div><a href='#' onclick='info_popups("+addresses[i].id+"); return false;'>"+addresses[i].address+"</a>" + website + directions + "</li>";
         }
@@ -285,7 +286,7 @@ var $j = jQuery.noConflict();
     }
 
     function codeDefAddress(def, range, limit){
-        var address = grim_dealers.defadress;
+        var address = dealer_map.defadress;
         if( def === '1') { 
             geocoder.geocode( { 'address': address}, function(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
@@ -294,9 +295,9 @@ var $j = jQuery.noConflict();
                     var lng = map.getCenter().lng();
                     $j.ajax({
                         type: 'GET', // use $j_GET method to submit data
-                        url: grim_dealers.ajaxurl,
+                        url: dealer_map.ajaxurl,
                         data: { action: 'dealer_search', // where to submit the data
-                            security: grim_dealers.grimnonce,
+                            security: dealer_map.dealer_mapnonce,
                             lat: lat,
                             lng: lng,
                             radius: range,
@@ -380,12 +381,12 @@ var $j = jQuery.noConflict();
             case 'ge_add': 
                 err = error_aD;
             break; }
-        $j('#grim-dealer-error').text(err).show('slow');
+        $j('#dealer-map-error').text(err).show('slow');
     }
 
     function clear_Errmsg() {
-        if ($j('#grim-dealer-error').text() != '')
-            $j('#grim-dealer-error').text('').hide(); 
+        if ($j('#dealer-map-error').text() != '')
+            $j('#dealer-map-error').text('').hide(); 
     }
 
     function end_directions(){
@@ -426,7 +427,7 @@ var $j = jQuery.noConflict();
 
     $j(document).ready(inite);
     $j(window).load(function() {
-        if (grim_dealers.showdef === '1') {
-            codeDefAddress( grim_dealers.showdef, grim_dealers.defrange, grim_dealers.deflimit );
+        if (dealer_map.showdef === '1') {
+            codeDefAddress( dealer_map.showdef, dealer_map.defrange, dealer_map.deflimit );
         }
     });

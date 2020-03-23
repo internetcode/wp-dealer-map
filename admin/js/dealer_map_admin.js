@@ -30,9 +30,9 @@ jQuery( document ).ready( function( $ ) {
       return;
     }
     mediaUploader = wp.media.frames.file_frame = wp.media({
-      title: grim_admin_vars.upl_title,
+      title: dealer_map_admin_vars.upl_title,
       button: {
-      text: grim_admin_vars.upl_text
+      text: dealer_map_admin_vars.upl_text
     }, multiple: false });
     mediaUploader.on('select', function() {
       var attachment = mediaUploader.state().get('selection').first().toJSON();
@@ -43,7 +43,7 @@ jQuery( document ).ready( function( $ ) {
 
   // The "Remove" button (remove the value from input type='hidden')
   $('.remove_image_button').click(function() {
-      var answer = confirm(grim_admin_vars.upl_sure);
+      var answer = confirm(dealer_map_admin_vars.upl_sure);
       if (answer == true) {
           var src = $('#csv_file').val('');
       }
@@ -51,7 +51,7 @@ jQuery( document ).ready( function( $ ) {
   });
 
   // Make sure the custom error notices can be removed
-  $( "#grim-wrap" ).on( "click", "button.notice-dismiss", function() {
+  $( "#dealer_map-wrap" ).on( "click", "button.notice-dismiss", function() {
       $( this ).closest( 'div.notice' ).remove();
   });
   
@@ -59,33 +59,6 @@ jQuery( document ).ready( function( $ ) {
   $('.error_message, .success_message, .info_message_dismiss').click(function () {
      $(this).fadeOut("slow", function () {
       });
-  });
-
-  /**
-   * Handle the red warning that's shown next to the
-   * force zipcode search option if the autocomplete
-   * value is changed.
-   */
-  $( "#grim-search-autocomplete, #grim-force-postalcode" ).change( function() {
-      var $info = $( "#grim-force-postalcode" ).parent( "p" ).find( ".grim-info-zip-only" );
-
-      if ( $( "#grim-search-autocomplete" ).is( ":checked" ) && $( "#grim-force-postalcode" ).is( ":checked" ) ) {
-          $info.show();
-      } else {
-          $info.hide();
-      }
-  });
-
-  $( "#grim-delay-loading" ).change( function() {
-      if ( $( this ).is( ":checked" ) ) {
-          $( this ).parent( "p" ).find( ".grim-info" ).trigger( "mouseover" );
-      } else {
-          $( this ).parent( "p" ).find( ".grim-info" ).trigger( "mouseout" );
-      }
-  });
-
-  $( "#grim-wrap" ).on( "click", function( e ) {
-      $( ".grim-info-text" ).hide();
   });
 
   // Delete DB Table button
@@ -98,7 +71,7 @@ jQuery( document ).ready( function( $ ) {
       'Delete Table': function () {
       $('#delete_db_button_hidden').val('true');
       $(this).dialog('close');
-      $('#grim_form').submit();
+      $('#dealer_map_form').submit();
       },
       'Cancel': function () {
       $(this).dialog("close");
@@ -110,14 +83,14 @@ jQuery( document ).ready( function( $ ) {
   });
   
   $('#show_all').on('click', function() {
-     var url = 'admin.php?page=grimdealers/grim_locations';
+     var url = 'admin.php?page=dealer_map/dealer_map_locations';
       window.open(url, '_self'); 
   });
   
   function initgmap() { 
-     $('#grim-map').addClass('bigi');
+     $('#dealer_map-map').addClass('bigi');
      var geocoder = new google.maps.Geocoder();
-     var map = new google.maps.Map(document.getElementById('grim-map'), {
+     var map = new google.maps.Map(document.getElementById('dealer_map-map'), {
          zoom: 8,
          center: {lat: 32.480285, lng: -95.703372}
      });
@@ -194,7 +167,7 @@ jQuery( document ).ready( function( $ ) {
             position: results[0].geometry.location
           });
         } else {
-          alert(grim_admin_vars.geo_alert+ ': ' +status);
+          alert(dealer_map_admin_vars.geo_alert+ ': ' +status);
         }
       });
     } else {
@@ -203,15 +176,15 @@ jQuery( document ).ready( function( $ ) {
   }
 
   var h_location = location.href.split('?')[1];
-  if(grim_admin_vars.api_keys !== '') { 
-    if (h_location === 'page=grimdealers%2Flocations_form' || h_location.indexOf('locations_form&id=') != -1) { 
-      $('.grim-latlng').on('click', function(e) {
+  if(dealer_map_admin_vars.api_keys !== '') { 
+    if (h_location === 'page=dealer_map%2Flocations_form' || h_location.indexOf('locations_form&id=') != -1) { 
+      $('.dealer_map-latlng').on('click', function(e) {
           e.preventDefault();
           initgmap();
       });
     }
   } else {
-    return false;
-   // alert(grim_admin_vars.api_alert);
+    $('.dealer_map-latlng.button').css('display', 'none');
+   // alert(dealer_map_admin_vars.api_alert);
   }  
 });

@@ -10,10 +10,10 @@ if (!class_exists('WP_List_Table')) {
 }
 
     /**
-    * Grim_List_Table class that will display our custom table
+    * Dealer_Map_List_Table class that will display our custom table
     * records in nice table
     */
-class Grim_List_Table extends WP_List_Table {
+class Dealer_Map_List_Table extends WP_List_Table {
     /**
         * [REQUIRED] this is a default column renderer
         *
@@ -21,8 +21,7 @@ class Grim_List_Table extends WP_List_Table {
         * @param $column_name - string (key)
         * @return HTML
         */
-    function column_default($item, $column_name)
-    {
+    public function column_default($item, $column_name) {
         return $item[$column_name];
     }
 
@@ -33,11 +32,11 @@ class Grim_List_Table extends WP_List_Table {
         * @param $item - row (key, value array)
         * @return HTML
         */
-    function column_name($item)
-    {
+    public function column_name($item) {
+
         $actions = array(
-            'edit' => sprintf('<a href="?page=grimdealers/locations_form&id=%s">%s</a>', $item['id'], __('Edit', 'grim')),
-            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s">%s</a>', $_REQUEST['page'], $item['id'], __('Delete', 'grim')),
+            'edit' => sprintf('<a href="?page=dealer_map/locations_form&id=%s">%s</a>', intval($item['id']), __('Edit', 'wp-dealer-map')),
+            'delete' => sprintf('<a href="?page=dealer_map/dealer_map_locations&action=delete&id=%s">%s</a>', intval($item['id']), __('Delete', 'wp-dealer-map')),
         );
 
         return sprintf('%s %s',
@@ -52,8 +51,7 @@ class Grim_List_Table extends WP_List_Table {
         * @param $item - row (key, value array)
         * @return HTML
         */
-    function column_cb($item)
-    {
+    public function column_cb($item) {
         return sprintf(
             '<input type="checkbox" name="id[]" value="%s" />',
             $item['id']
@@ -67,27 +65,26 @@ class Grim_List_Table extends WP_List_Table {
         *
         * @return array
         */
-    function get_columns()
-    {
+    public function get_columns() {
         $columns = array(
             'cb' => '<input type="checkbox" />', //Render a checkbox instead of text
-            'name' => __('Name', 'grim'),
-            'address' => __('Address', 'grim'),
-            'lat' => __('Latitude', 'grim'),
-            'lng' => __('Longitude', 'grim'),
-            'active' => __('Active', 'grim'),
-            'address2' => __('Address2', 'grim'),
-            'city' => __('City', 'grim'),
-            'state' => __('State', 'grim'),
-            'zip' => __('Zip', 'grim'),
-            'country' => __('Country', 'grim'),
-            'description' => __('Description', 'grim'),
-            'phone' => __('Phone', 'grim'),
-            'fax' => __('Fax', 'grim'),
-            'url' => __('URL', 'grim'),
-            'email' => __('Email', 'grim'),
-            'thumb_id' => __('Image', 'grim'),
-            'proseries' => __('PRO', 'grim')
+            'name' => __('Name', 'wp-dealer-map'),
+            'address' => __('Address', 'wp-dealer-map'),
+            'lat' => __('Latitude', 'wp-dealer-map'),
+            'lng' => __('Longitude', 'wp-dealer-map'),
+            'active' => __('Active', 'wp-dealer-map'),
+            'address2' => __('Address2', 'wp-dealer-map'),
+            'city' => __('City', 'wp-dealer-map'),
+            'state' => __('State', 'wp-dealer-map'),
+            'zip' => __('Zip', 'wp-dealer-map'),
+            'country' => __('Country', 'wp-dealer-map'),
+            'description' => __('Description', 'wp-dealer-map'),
+            'phone' => __('Phone', 'wp-dealer-map'),
+            'fax' => __('Fax', 'wp-dealer-map'),
+            'url' => __('URL', 'wp-dealer-map'),
+            'email' => __('Email', 'wp-dealer-map'),
+            'thumb_id' => __('Image', 'wp-dealer-map'),
+            'proseries' => __('PRO', 'wp-dealer-map')
         );
         return $columns;
     }
@@ -99,8 +96,7 @@ class Grim_List_Table extends WP_List_Table {
         *
         * @return array
         */
-    function get_sortable_columns()
-    {
+    public function get_sortable_columns() {
         $sortable_columns = array(
             'name' => array('name', true),
             'address' => array('address', false),
@@ -118,7 +114,7 @@ class Grim_List_Table extends WP_List_Table {
             'url' => array('url', false),
             'email' => array('email', false),
             'thumb_id' => array('thumb_id', false),
-            'proseries' => __('PRO', 'grim')
+            'proseries' => __('PRO', 'wp-dealer-map')
         );
         return $sortable_columns;
     }
@@ -128,8 +124,7 @@ class Grim_List_Table extends WP_List_Table {
         *
         * @return array
         */
-    function get_bulk_actions()
-    {
+    public function get_bulk_actions() {
         $actions = array(
             'delete' => 'Delete'
         );
@@ -143,14 +138,15 @@ class Grim_List_Table extends WP_List_Table {
         * in this example we are processing delete action
         * message about successful deletion will be shown on page in next part
         */
-    function process_bulk_action()
-    {
+    public function process_bulk_action() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'grim_stores'; // do not forget about tables prefix
+        $table_name = $wpdb->prefix . 'dealer_map_stores'; // do not forget about tables prefix
 
         if ('delete' === $this->current_action()) {
-            $ids = isset($_REQUEST['id']) ? $_REQUEST['id'] : array();
-            if (is_array($ids)) $ids = implode(',', $ids);
+
+            $ids = ( isset($_GET['id']) && !empty($_GET['id']) ) ? esc_sql($_GET['id']) : array();
+            if(is_array($ids)) 
+            $ids = implode(',', $ids);
 
             if (!empty($ids)) {
                 $wpdb->query("DELETE FROM $table_name WHERE id IN($ids)");
@@ -158,11 +154,12 @@ class Grim_List_Table extends WP_List_Table {
         }
     }
 
-    function search_through() {
+    private function search_through() {
         $is_search = false;
-        if(isset($_REQUEST['search'])) {
+
+        if(isset($_GET['search']) && $_GET['search'] != '') {
             $is_search = true;
-        } else if (isset($_REQUEST['show_all'])) {
+        } else if (isset($_GET['show_all'])) {
           $is_search = false; 
         }
         return $is_search;
@@ -173,10 +170,9 @@ class Grim_List_Table extends WP_List_Table {
         *
         * It will get rows from database and prepare them to be showed in table
         */
-    function prepare_items()
-    {
+    public function prepare_items() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'grim_stores'; // do not forget about tables prefix
+        $table_name = $wpdb->prefix . 'dealer_map_stores'; // do not forget about tables prefix
 
         $per_page = 20; // constant, how much records will be shown per page
 
@@ -192,15 +188,15 @@ class Grim_List_Table extends WP_List_Table {
         $is_search = $this->search_through();
         $search = '';
         if(isset($_REQUEST['search'])) {
-            $search = trim($_REQUEST['search']);
+            $search = sanitize_text_field($_REQUEST['search']);
         }    
         // will be used in pagination settings
         $total_items = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
 
         // prepare query params, as usual current page, order by and order direction
         $paged = isset($_REQUEST['paged']) ? ($per_page * max(0, intval($_REQUEST['paged']) - 1)) : 0;
-        $orderby = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], array_keys($this->get_sortable_columns()))) ? $_REQUEST['orderby'] : 'name';
-        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
+        $orderby = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], array_keys($this->get_sortable_columns()))) ? sanitize_sql_orderby($_REQUEST['orderby']) : 'name';
+        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? esc_sql($_REQUEST['order']) : 'asc';
 
         // [REQUIRED] define $items array
         // notice that last argument is ARRAY_A, so we will retrieve array

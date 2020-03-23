@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Add GRIM Dealer Roles.
- *
+ * Add Dealer Map Roles.
+ *@since 1.0.0 (description)
+ *@return void 
  */
-function grim_add_roles() {
+function dealer_map_add_roles() {
     
     global $wp_roles;
 
@@ -15,7 +16,7 @@ function grim_add_roles() {
     }
     //Check $wp_roles is OBJECT
 	if ( is_object( $wp_roles ) ) {
-		add_role( 'grim_store_locator_manager', __( 'Grim Dealer Manager', 'grim' ), array(
+		add_role( 'dealer_map_store_locator_manager', __( 'Dealer Map Manager', 'wp-dealer-map' ), array(
 			'unfiltered_html'        => true,
 			'upload_files'           => true,
 			'delete_others_posts'    => true,
@@ -24,18 +25,18 @@ function grim_add_roles() {
 	    	'edit_posts'             => true,
             'edit_private_posts'     => true,
 			'read_private_posts'     => true,
-            'manage_grim_settings'   => true
+            'manage_dealer_map_settings'   => true
 		) );
     }
 }
 
 /**
- * Add grim user capabilities.
+ * Add dealer_map user capabilities.
  *
- * @since 1.0
+ * @since 1.0.0
  * @return void
  */
-function grim_add_caps() {
+function dealer_map_add_caps() {
     
     global $wp_roles;
 
@@ -46,24 +47,24 @@ function grim_add_caps() {
     }
 
     if ( is_object( $wp_roles ) ) {
-        $wp_roles->add_cap( 'administrator', 'manage_grim_settings' );
+        $wp_roles->add_cap( 'administrator', 'manage_dealer_map_settings' );
         
-        $capabilities = grim_get_post_caps();
+        $capabilities = dealer_map_get_post_caps();
         
         foreach ( $capabilities as $cap ) {
-            $wp_roles->add_cap( 'grim_store_locator_manager', $cap );
+            $wp_roles->add_cap( 'dealer_map_store_locator_manager', $cap );
             $wp_roles->add_cap( 'administrator',              $cap );
         }
     } 
 }
 
 /** 
- * Get the grim post type capabilities.
+ * Get the dealer_map post type capabilities.
  * 
- * @since 1.0
+ * @since 1.0.0
  * @return array $capabilities The post type capabilities
  */
-function grim_get_post_caps() {
+function dealer_map_get_post_caps() {
 
     $capabilities = array(
         'edit_store',
@@ -82,33 +83,4 @@ function grim_get_post_caps() {
     );
     
     return $capabilities;
-}
-
-/**
- * Remove the grim caps and roles
- * on uninstall hook
- *
- */
-function grim_remove_caps_and_roles() {
-      
-    global $wp_roles;
-
-    if ( class_exists( 'WP_Roles' ) ) {
-        if ( !isset( $wp_roles ) ) {
-            $wp_roles = new WP_Roles();
-        }
-    }
-    
-    if ( is_object( $wp_roles ) ) {
-        $wp_roles->remove_cap( 'administrator', 'manage_grim_settings' );
-        
-        $capabilities = grim_get_post_caps();
-        
-        foreach ( $capabilities as $cap ) {
-            $wp_roles->remove_cap( 'grim_store_locator_manager', $cap );
-            $wp_roles->remove_cap( 'administrator',              $cap );
-        }
-    } 
-    
-    remove_role( 'grim_store_locator_manager' ); 
 }

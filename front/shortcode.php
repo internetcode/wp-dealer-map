@@ -6,14 +6,14 @@
 
 if ( !defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
+if ( !class_exists( 'Dealer_Frontend_Shortcode' ) ) {
 
     /**
      * Frontend of the dealer locator shortcode
      *
-     * @since 1.0
+     * @since 1.0.0
      */
-    class GRIM_Frontend_Shortcode {
+    class Dealer_Frontend_Shortcode {
 
         /**
          * Shortcode attributes from shortcode tag
@@ -29,32 +29,32 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
             //Action and filters of class
             add_action( 'wp_ajax_dealer_search',        array( $this, 'dealer_search' ) );
             add_action( 'wp_ajax_nopriv_dealer_search', array( $this, 'dealer_search' ) );
-            add_shortcode( 'grim_dealers',              array( $this, 'show_store_locator' ) );
+            add_shortcode( 'dealer_map',              array( $this, 'show_store_locator' ) );
             add_filter( 'the_content',                  array( $this, 'remove_duplicated_locator' ));
         }
 
         /**
          * Handle the Ajax search on the frontend.
          *
-         * @since 1.0
+         * @since 1.0.0
          * @return json List of store locations in JSON OBJECT format that are located within search radius
          */
         public function dealer_search($args = array()) {
 
-           global $wpdb, $grim, $grim_settings;
+           global $wpdb, $dealer_map, $dealer_map_settings;
             //Security check
-            $security = $_GET['security'];
-            if ( ! wp_verify_nonce( $security, 'grim-nonce' ) )
+            $security = (isset($_GET['security'])) ? $_GET['security'] : '';
+            if ( ! wp_verify_nonce( $security, 'dealer_map_nonce' ) )
                 die ( 'Busted!');
 
             $store_data = array();
-            $table = $wpdb->prefix . 'grim_stores';
-            $unit = (grim_get_distance_unit() == 'km') ? 'Km' : 'Mi';
+            $table = $wpdb->prefix . 'dealer_map_stores';
+            $unit = (dealer_map_get_distance_unit() == 'km') ? 'Km' : 'Mi';
             /*
              * Set the correct earth radius in either km or miles.
              * We need this to calculate the distance between two coordinates.
              */
-            $placeholder_values[] = ( grim_get_distance_unit() == 'km' ) ? 6371 : 3959;
+            $placeholder_values[] = ( dealer_map_get_distance_unit() == 'km' ) ? 6371 : 3959;
 
             // The placeholder values for the prepared statement in the SQL query.
             if ( empty( $args ) ) {
@@ -123,8 +123,8 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
                                        '<span class="prov_state">' . stripslashes( $store_data[$k]->state ) . ' '. '</span>',
                                        '<span class="postal_zip">' . stripslashes( $store_data[$k]->zip ) . ', '.'</span>',
                                        '<span class="country">'. stripslashes( $store_data[$k]->country ) . '</span><br /><br />',
-                                        esc_html__('Ph', 'grim') . ': <span class="phone">'. stripslashes( $store_data[$k]->phone ) . '</span><br />',
-                                        esc_html__('Fax', 'grim') .': <span class="phone">'. stripslashes( $store_data[$k]->fax ) . '</span><br />',
+                                        esc_html__('Ph', 'wp-dealer-map') . ': <span class="phone">'. stripslashes( $store_data[$k]->phone ) . '</span><br />',
+                                        esc_html__('Fax', 'wp-dealer-map') .': <span class="phone">'. stripslashes( $store_data[$k]->fax ) . '</span><br />',
                                        '<span class="website"> <a href="'. $web .'" target="_blank"></a></span>'
                         );
                 }  
@@ -141,7 +141,18 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
             wp_die();
         }
 
-        //Summary building function
+        /**
+         * Summary building function
+         * @since  1.0.0 (description)
+         * @param  string $name    
+         * @param  string $address 
+         * @param  string $city    
+         * @param  string $state   
+         * @param  string $zip     
+         * @param  string $country 
+         * @param  string $phone   
+         * @return string|html  
+         */
         public function summary($name, $address, $city, $state, $zip, $country, $phone ) {
            $sum = '';
            $sum .= '<span class="name">' . stripslashes($name) . '</span>';
@@ -155,26 +166,26 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
         }
 
         /**
-         * Handle the [grim_dealers] shortcode.
+         * Handle the [dealer_map] shortcode.
          *
-         * @since 1.0
+         * @since 1.0.0
          * @param  array  $atts   Shortcode attributes
          * @return string $output The map-html template
          */
         public function show_store_locator( $atts ) {
 
-            global $grim, $grim_settings;
+            global $dealer_map, $dealer_map_settings;
 
-                include GRIM_PLUGIN_DIR . 'front/grim-data.php';
+                include DEALER_PLUGIN_DIR . 'front/dealer-data.php';
 
                 //Enqueue JS and get final parameters
-                wp_enqueue_style('grim_map_css');
-                wp_enqueue_script('grim_map');
-                wp_localize_script('grim_handler_script', 'grim_dealers', $parameters);
-                wp_enqueue_script('grim_handler_script');
+                wp_enqueue_style('dealer_map_css');
+                wp_enqueue_script('dealer_map_api');
+                wp_localize_script('dealer_map_handler_script', 'dealer_map', $parameters);
+                wp_enqueue_script('dealer_map_handler_script');
 
                 ob_start();
-                include GRIM_PLUGIN_DIR . 'front/map-html.php';
+                include DEALER_PLUGIN_DIR . 'front/map-html.php';
                 return ob_get_clean();
             
         }
@@ -182,18 +193,18 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
         /**
          * Handle the map-html.php result address number of columns css classes
          *
-         * @since 1.0
+         * @since 1.0.0
          * @param $attribut Boolen true if used shortcode attribute result_columns
          * @param $colons string Number of columns results added to shortcode or to settings page 
          * @return string CSS classes
          * 
          */
         public function column_css( $attribut = false, $colons ) {
-            global $grim_settings;
+            global $dealer_map_settings;
             $css = '';
 
-            if ( isset( $grim_settings['num_of_columns']) || $attribut ) {
-                $var = ($attribut === true) ? $colons : $grim_settings['num_of_columns'];
+            if ( isset( $dealer_map_settings['num_of_columns']) || $attribut ) {
+                $var = ($attribut === true) ? $colons : $dealer_map_settings['num_of_columns'];
                 switch ( $var ) {
                     case '2':
                         $css = 'colo-2';
@@ -221,15 +232,15 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
         /**
          * Handle the map-html.php search button css classes
          *
-         * @since 1.0
+         * @since 1.0.0
          * @return string CSS classes
          */
         public function button_css() {
-            global $grim_settings;
+            global $dealer_map_settings;
             $classes = '';
 
-            if ( isset( $grim_settings['button_css'] ) ) {
-                switch ($grim_settings['button_css']) {
+            if ( isset( $dealer_map_settings['button_css'] ) ) {
+                switch ($dealer_map_settings['button_css']) {
                     case 'red':
                         $classes = 'btn red-gradient';
                         break;
@@ -255,19 +266,19 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
 
 
         /**
-         * Handle the [grim_dealers] shortcode attributes
+         * Handle the [dealer_map] shortcode attributes
          *
-         * @since 1.0
+         * @since 1.0.0
          * @param array $atts Shortcode attributes
          */
-        public function check_grim_shortcode_atts( $atts ) {
+        public function check_dealer_map_shortcode_atts( $atts ) {
 
             if ( isset( $atts['default_start'] ) && $atts['default_start'] !== '' ) {
                 $this->short_atts['att']['showdef'] = $atts['default_start']; //only can be 0 or 1, true or false
             }
 
             if ( isset( $atts['start_address'] ) && $atts['start_address'] ) {
-                $coordinates = grim_check_coordinates_transient( $atts['start_address'] );
+                $coordinates = dealer_map_check_coordinates_transient( $atts['start_address'] );
 
                 if ( isset( $coordinates ) && array_key_exists('lat', $coordinates ) ) {
                     //lattitude/longitude coordinates from gecoding G service
@@ -275,7 +286,7 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
                 }
             }
             
-            if ( isset( $atts['maptype'] ) && array_key_exists( $atts['maptype'], grim_get_map_types() ) ) {
+            if ( isset( $atts['maptype'] ) && array_key_exists( $atts['maptype'], dealer_map_get_map_types() ) ) {
                 $this->short_atts['att']['maptype'] = $atts['maptype']; //only roadmap, satellite, hybrid, terrain accepted
             }
 
@@ -289,20 +300,20 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
         /**
          * Handling the dropdown list for search radius or limit options
          *
-         * @since 1.0
+         * @since 1.0.0
          * @param  string $list     Name of the list radius or limit
          * @return string $dropdown A list with all available options for the dropdown
          */
-        public function grim_dropdown_list( $list ) {
+        public function dealer_map_dropdown_list( $list ) {
 
-            global $grim_settings;
+            global $dealer_map_settings;
 
             $dropdown = '';
-            $expand      = explode( ',', $grim_settings[$list] );
+            $expand      = explode( ',', $dealer_map_settings[$list] );
 
             // Only show the distance unit if we are dealing with the search radius.
             if ( $list == 'search_radius' ) {
-                $distance_unit = ' '. esc_attr( grim_get_distance_unit() );
+                $distance_unit = ' '. esc_attr( dealer_map_get_distance_unit() );
             } else {
                 $distance_unit = '';
             }
@@ -325,23 +336,23 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
         /**
          * Remove all other instances from pages and post
          * only one shortcode executed per post/page
-         * 
-         * @param $content  string All content from page where shortcode [grim_delaers] used
+         * @since 1.0.0 (description)
+         * @param $content  string All content from page where shortcode [dealer_map_delaers] used
          * @return $content string striped out all other shorcodes except first one
          */
         public function remove_duplicated_locator($content){ 
             
             //check if page has our shortcode
-            if( has_shortcode( $content, 'grim_dealers' ) ) {
-                $pattern = get_shortcode_regex(array('grim_dealers'));
+            if( has_shortcode( $content, 'dealer_map' ) ) {
+                $pattern = get_shortcode_regex(array('dealer_map'));
                 if( preg_match_all( '/'. $pattern .'/s', $content, $matches ) ) {
                     if( count($matches[0]) > 1 ) { 
                         // Find start position of shortcodes codes from $content variable
-                        $start =  strpos($content, '[grim_dealers]');
-                        $end = strrpos($content, '[grim_dealers]');
+                        $start =  strpos($content, '[dealer_map]');
+                        $end = strrpos($content, '[dealer_map]');
 
                         // Return error message as multiple shortcodes added
-                        $error = (is_admin() != true) ? esc_html_e( 'Error, only one shortcode per page allowed!', 'grim' ) : '';
+                        $error = (is_admin() != true) ? esc_html_e( 'Error, only one shortcode per page allowed!', 'wp-dealer-map' ) : '';
                         $content = $error . '' . substr_replace($content, '', $start, $end);
                     }
                 }
@@ -351,5 +362,3 @@ if ( !class_exists( 'GRIM_Frontend_Shortcode' ) ) {
 
     }
 }
-
-//include GRIM_PLUGIN_DIR . 'front/map-handler.php';
