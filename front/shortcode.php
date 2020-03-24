@@ -29,7 +29,7 @@ if ( !class_exists( 'Dealer_Frontend_Shortcode' ) ) {
             //Action and filters of class
             add_action( 'wp_ajax_dealer_search',        array( $this, 'dealer_search' ) );
             add_action( 'wp_ajax_nopriv_dealer_search', array( $this, 'dealer_search' ) );
-            add_shortcode( 'dealer_map',              array( $this, 'show_store_locator' ) );
+            add_shortcode( 'dealer_map',                array( $this, 'show_store_locator' ) );
             add_filter( 'the_content',                  array( $this, 'remove_duplicated_locator' ));
         }
 
@@ -42,9 +42,9 @@ if ( !class_exists( 'Dealer_Frontend_Shortcode' ) ) {
         public function dealer_search($args = array()) {
 
            global $wpdb, $dealer_map, $dealer_map_settings;
+
             //Security check
-            $security = (isset($_GET['security'])) ? $_GET['security'] : '';
-            if ( ! wp_verify_nonce( $security, 'dealer_map_nonce' ) )
+            if ( !isset( $_GET['security'] ) || !wp_verify_nonce( $_GET['security'], 'dealer_map_nonce' ) )
                 die ( 'Busted!');
 
             $store_data = array();

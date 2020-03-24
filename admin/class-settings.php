@@ -6,7 +6,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'Dealer_Map_Settings' ) ) {
     
-	class Dealer_Map_Settings {
+    class Dealer_Map_Settings {
                         
         public function __construct() {
             add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -28,7 +28,7 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
          * @since 1.0.0
          * @return array $output The setting values
          */
-		public function sanitize_settings() {
+        public function sanitize_settings() {
 
             global $dealer_map_settings, $dealer_map_admin;
 
@@ -52,8 +52,8 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
                 $this->settings_error( 'error_map_api' ); 
             }
 
-			$output['api_language']          = wp_filter_nohtml_kses( $_POST['dealer_map_api']['language'] );
-			$output['api_region']            = wp_filter_nohtml_kses( $_POST['dealer_map_api']['region'] );
+            $output['api_language']          = wp_filter_nohtml_kses( $_POST['dealer_map_api']['language'] );
+            $output['api_region']            = wp_filter_nohtml_kses( $_POST['dealer_map_api']['region'] );
 
             /* Search settings tab */
             // Check for a valid start latitude value, otherwise we use the default.
@@ -103,31 +103,31 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
             $output['radius_dropdown']      = isset( $_POST['dealer_map_search']['radius_dropdown'] ) ? 1 : 0;
             
             $output['distance_unit'] = ( $_POST['dealer_map_search']['distance_unit'] == 'km' ) ? 'km' : 'mi';
-			
-			// Check for a valid max results value, otherwise we use the default.
-			if ( !empty( $_POST['dealer_map_search']['max_results'] ) ) {
-				$output['max_results'] = sanitize_text_field( $_POST['dealer_map_search']['max_results'] );
-			} else {
-				$this->settings_error( 'max_results' );
-				$output['max_results'] = '20';
-			}
-			
-			// See if a search radius value exist, otherwise we use the default.
-			if ( !empty( $_POST['dealer_map_search']['radius'] ) ) {
-				$output['search_radius'] = sanitize_text_field( $_POST['dealer_map_search']['radius'] );
-			} else {
-				$this->settings_error( 'search_radius' );
-				$output['search_radius'] = '25';
-			}
+            
+            // Check for a valid max results value, otherwise we use the default.
+            if ( !empty( $_POST['dealer_map_search']['max_results'] ) ) {
+                $output['max_results'] = sanitize_text_field( $_POST['dealer_map_search']['max_results'] );
+            } else {
+                $this->settings_error( 'max_results' );
+                $output['max_results'] = '20';
+            }
+            
+            // See if a search radius value exist, otherwise we use the default.
+            if ( !empty( $_POST['dealer_map_search']['radius'] ) ) {
+                $output['search_radius'] = sanitize_text_field( $_POST['dealer_map_search']['radius'] );
+            } else {
+                $this->settings_error( 'search_radius' );
+                $output['search_radius'] = '25';
+            }
             
             /* Layout settings tab */
             $output['map_height'] = sanitize_text_field( $_POST['dealer_map_layout']['map_height'] );                      
-			$output['api_maptype'] = wp_filter_nohtml_kses( $_POST['dealer_map_layout']['maptype'] );
+            $output['api_maptype'] = wp_filter_nohtml_kses( $_POST['dealer_map_layout']['maptype'] );
             $output['api_zoom'] = wp_filter_nohtml_kses( $_POST['dealer_map_layout']['zoom'] );
             $output['marker_event'] = ( $_POST['dealer_map_layout']['marker_event'] == 'click' ) ? 'click' : 'mouseover';
             $output['marker_effect'] = ( $_POST['dealer_map_layout']['marker_effect'] == 'drop' ) ? 'drop' : 'bounce';
-            $output['num_of_columns'] = ( $_POST['dealer_map_layout']['num_of_columns'] ) ? $_POST['dealer_map_layout']['num_of_columns'] : '4';
-            $output['button_css'] = ( $_POST['dealer_map_layout']['btn_class'] ) ? $_POST['dealer_map_layout']['btn_class'] : '--';
+            $output['num_of_columns'] = ( !empty($_POST['dealer_map_layout']['num_of_columns']) ) ? sanitize_key($_POST['dealer_map_layout']['num_of_columns']) : '4';
+            $output['button_css'] = ( !empty($_POST['dealer_map_layout']['btn_class']) ) ? sanitize_text_field($_POST['dealer_map_layout']['btn_class']) : '--';
 
             /* Addition settings tab */
             $output['remove_all'] = ( $_POST['dealer_map_addition']['remove_all'] == 'remove' ) ? 'remove' : 'keep';
@@ -136,10 +136,10 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
             $this->maybe_keep($output['remove_all'], $output['keep_table']);
 
             $output['environment'] = ( $_POST['dealer_map_addition']['environment'] == 'production' ) ? 'production' : 'developing';
-            $output['gmap_scripts'] =  isset( $_POST['dealer_map_addition']['gmap_scripts'] ) ? 1 : 0;  
+            $output['gmap_scripts'] =  isset( $_POST['dealer_map_addition']['gmap_scripts'] ) ? 1 : 0;
             
-			return $output;
-		}
+            return $output;
+        }
 
         /**
          * Maybe update options added by plugin_activated_hook
@@ -170,9 +170,9 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
          * @param string $error_type Contains the type of validation error that occured
          * @return void
          */
-		private function settings_error( $error_type ) {
+        private function settings_error( $error_type ) {
             
-			switch ( $error_type ) {
+            switch ( $error_type ) {
                 case 'wrong_map_api':
                     $error_msg = __( 'Please enter Valid Google Maps API keys.', 'wp-dealer-map' );   
                     break;
@@ -182,15 +182,15 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
                 case 'error_map_recheck':
                     $error_msg = __( 'Please type again your Google Maps API keys.', 'wp-dealer-map' );   
                     break;    
-				case 'max_results':
-					$error_msg = __( 'The max results field cannot be empty, the default value has been restored.', 'wp-dealer-map' );	
-					break;
-				case 'search_radius':
-					$error_msg = __( 'The search radius field cannot be empty, the default value has been restored.', 'wp-dealer-map' );	
-					break;	
+                case 'max_results':
+                    $error_msg = __( 'The max results field cannot be empty, the default value has been restored.', 'wp-dealer-map' );  
+                    break;
+                case 'search_radius':
+                    $error_msg = __( 'The search radius field cannot be empty, the default value has been restored.', 'wp-dealer-map' );    
+                    break;  
                 case 'start_lat':
-					$error_msg = __( 'Please provide the Latitude that can be used as a starting point', 'wp-dealer-map' );
-					break;
+                    $error_msg = __( 'Please provide the Latitude that can be used as a starting point', 'wp-dealer-map' );
+                    break;
                 case 'start_lng':
                     $error_msg = __( 'Please provide the Longitude that can be used as a starting point', 'wp-dealer-map' );
                     break;
@@ -200,10 +200,10 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
                 case 'd_address':
                     $error_msg = __( 'Please provide valid ZIP that can be used as a starting point', 'wp-dealer-map' );
                     break;      
-			}
-			
-			add_settings_error( 'setting-errors', esc_attr( 'settings_fail' ), $error_msg, 'error' );
-		}
+            }
+            
+            add_settings_error( 'setting-errors', esc_attr( 'settings_fail' ), $error_msg, 'error' );
+        }
 
         /**
          * Options for the google map type list.
@@ -266,65 +266,65 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
          * @param  string      $lista 
          * @return string|void $option_list The html for the selected list
          */
-		public function get_api_lang_list() {
+        public function get_api_lang_list() {
 
-				$api_lang_list = array ( 	
-					__('Select your language', 'wp-dealer-map')    => '',
-					__('English', 'wp-dealer-map')                 => 'en',
-					__('Arabic', 'wp-dealer-map')                  => 'ar',
-					__('Basque', 'wp-dealer-map')                  => 'eu',
-					__('Bulgarian', 'wp-dealer-map')               => 'bg',
-					__('Bengali', 'wp-dealer-map')                 => 'bn',
-					__('Catalan', 'wp-dealer-map')                 => 'ca',
-					__('Czech', 'wp-dealer-map')                   => 'cs',
-					__('Danish', 'wp-dealer-map')                  => 'da',
-					__('German', 'wp-dealer-map')                  => 'de',
-					__('Greek', 'wp-dealer-map')                   => 'el',
-					__('English (Australian)', 'wp-dealer-map')    => 'en-AU',
-					__('English (Great Britain)', 'wp-dealer-map') => 'en-GB',
-					__('Spanish', 'wp-dealer-map')                 => 'es',
-					__('Farsi', 'wp-dealer-map')                   => 'fa',
-					__('Finnish', 'wp-dealer-map')                 => 'fi',
-					__('Filipino', 'wp-dealer-map')                => 'fil',
-					__('French', 'wp-dealer-map')                  => 'fr',
-					__('Galician', 'wp-dealer-map')                => 'gl',
-					__('Gujarati', 'wp-dealer-map')                => 'gu',
-					__('Hindi', 'wp-dealer-map')                   => 'hi',
-					__('Croatian', 'wp-dealer-map')                => 'hr',
-					__('Hungarian', 'wp-dealer-map')               => 'hu',
-					__('Indonesian', 'wp-dealer-map')              => 'id',
-					__('Italian', 'wp-dealer-map')                 => 'it',
-					__('Hebrew', 'wp-dealer-map')                  => 'iw',
-					__('Japanese', 'wp-dealer-map')                => 'ja',
-					__('Kannada', 'wp-dealer-map')                 => 'kn',
-					__('Korean', 'wp-dealer-map')                  => 'ko',
-					__('Lithuanian', 'wp-dealer-map')              => 'lt',
-					__('Latvian', 'wp-dealer-map')                 => 'lv',
-					__('Malayalam', 'wp-dealer-map')               => 'ml',
-					__('Marathi', 'wp-dealer-map')                 => 'mr',
-					__('Dutch', 'wp-dealer-map')                   => 'nl',
-					__('Norwegian', 'wp-dealer-map')               => 'no',
-					__('Norwegian Nynorsk', 'wp-dealer-map')       => 'nn',
-					__('Polish', 'wp-dealer-map')                  => 'pl',
-					__('Portuguese', 'wp-dealer-map')              => 'pt',
-					__('Portuguese (Brazil)', 'wp-dealer-map')     => 'pt-BR',
-					__('Portuguese (Portugal)', 'wp-dealer-map')   => 'pt-PT',
-					__('Romanian', 'wp-dealer-map')                => 'ro',
-					__('Russian', 'wp-dealer-map')                 => 'ru',
-					__('Slovak', 'wp-dealer-map')                  => 'sk',
-					__('Slovenian', 'wp-dealer-map')               => 'sl',
-					__('Serbian', 'wp-dealer-map')                 => 'sr',
-					__('Swedish', 'wp-dealer-map')                 => 'sv',
-					__('Tagalog', 'wp-dealer-map')                 => 'tl',
-					__('Tamil', 'wp-dealer-map')                   => 'ta',
-					__('Telugu', 'wp-dealer-map')                  => 'te',
-					__('Thai', 'wp-dealer-map')                    => 'th',
-					__('Turkish', 'wp-dealer-map')                 => 'tr',
-					__('Ukrainian', 'wp-dealer-map')               => 'uk',
-					__('Vietnamese', 'wp-dealer-map')              => 'vi',
-					__('Chinese (Simplified)', 'wp-dealer-map')    => 'zh-CN',
-					__('Chinese (Traditional)' ,'wp-dealer-map')   => 'zh-TW'
-			);
+                $api_lang_list = array (    
+                    __('Select your language', 'wp-dealer-map')    => '',
+                    __('English', 'wp-dealer-map')                 => 'en',
+                    __('Arabic', 'wp-dealer-map')                  => 'ar',
+                    __('Basque', 'wp-dealer-map')                  => 'eu',
+                    __('Bulgarian', 'wp-dealer-map')               => 'bg',
+                    __('Bengali', 'wp-dealer-map')                 => 'bn',
+                    __('Catalan', 'wp-dealer-map')                 => 'ca',
+                    __('Czech', 'wp-dealer-map')                   => 'cs',
+                    __('Danish', 'wp-dealer-map')                  => 'da',
+                    __('German', 'wp-dealer-map')                  => 'de',
+                    __('Greek', 'wp-dealer-map')                   => 'el',
+                    __('English (Australian)', 'wp-dealer-map')    => 'en-AU',
+                    __('English (Great Britain)', 'wp-dealer-map') => 'en-GB',
+                    __('Spanish', 'wp-dealer-map')                 => 'es',
+                    __('Farsi', 'wp-dealer-map')                   => 'fa',
+                    __('Finnish', 'wp-dealer-map')                 => 'fi',
+                    __('Filipino', 'wp-dealer-map')                => 'fil',
+                    __('French', 'wp-dealer-map')                  => 'fr',
+                    __('Galician', 'wp-dealer-map')                => 'gl',
+                    __('Gujarati', 'wp-dealer-map')                => 'gu',
+                    __('Hindi', 'wp-dealer-map')                   => 'hi',
+                    __('Croatian', 'wp-dealer-map')                => 'hr',
+                    __('Hungarian', 'wp-dealer-map')               => 'hu',
+                    __('Indonesian', 'wp-dealer-map')              => 'id',
+                    __('Italian', 'wp-dealer-map')                 => 'it',
+                    __('Hebrew', 'wp-dealer-map')                  => 'iw',
+                    __('Japanese', 'wp-dealer-map')                => 'ja',
+                    __('Kannada', 'wp-dealer-map')                 => 'kn',
+                    __('Korean', 'wp-dealer-map')                  => 'ko',
+                    __('Lithuanian', 'wp-dealer-map')              => 'lt',
+                    __('Latvian', 'wp-dealer-map')                 => 'lv',
+                    __('Malayalam', 'wp-dealer-map')               => 'ml',
+                    __('Marathi', 'wp-dealer-map')                 => 'mr',
+                    __('Dutch', 'wp-dealer-map')                   => 'nl',
+                    __('Norwegian', 'wp-dealer-map')               => 'no',
+                    __('Norwegian Nynorsk', 'wp-dealer-map')       => 'nn',
+                    __('Polish', 'wp-dealer-map')                  => 'pl',
+                    __('Portuguese', 'wp-dealer-map')              => 'pt',
+                    __('Portuguese (Brazil)', 'wp-dealer-map')     => 'pt-BR',
+                    __('Portuguese (Portugal)', 'wp-dealer-map')   => 'pt-PT',
+                    __('Romanian', 'wp-dealer-map')                => 'ro',
+                    __('Russian', 'wp-dealer-map')                 => 'ru',
+                    __('Slovak', 'wp-dealer-map')                  => 'sk',
+                    __('Slovenian', 'wp-dealer-map')               => 'sl',
+                    __('Serbian', 'wp-dealer-map')                 => 'sr',
+                    __('Swedish', 'wp-dealer-map')                 => 'sv',
+                    __('Tagalog', 'wp-dealer-map')                 => 'tl',
+                    __('Tamil', 'wp-dealer-map')                   => 'ta',
+                    __('Telugu', 'wp-dealer-map')                  => 'te',
+                    __('Thai', 'wp-dealer-map')                    => 'th',
+                    __('Turkish', 'wp-dealer-map')                 => 'tr',
+                    __('Ukrainian', 'wp-dealer-map')               => 'uk',
+                    __('Vietnamese', 'wp-dealer-map')              => 'vi',
+                    __('Chinese (Simplified)', 'wp-dealer-map')    => 'zh-CN',
+                    __('Chinese (Traditional)' ,'wp-dealer-map')   => 'zh-TW'
+            );
 
             return $this->get_api_options( $api_lang_list, 'language' );
         }
@@ -335,8 +335,8 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
          * @since 1.0.0
          * @param  string      $lista
          * @return string|void $option_list The html for the selected list
-         */        	
-		public function get_api_reg_list() { 
+         */         
+        public function get_api_reg_list() { 
 
                     $api_reg_list = array (
                         __('Select your region', 'wp-dealer-map')               => '',
@@ -596,36 +596,36 @@ if ( !class_exists( 'Dealer_Map_Settings' ) ) {
                         __('Åland Islands', 'wp-dealer-map')                    => 'AX'
                     );
 
-                return $this->get_api_options( $api_reg_list, 'region' );		
-			}
-			
-		/**
+                return $this->get_api_options( $api_reg_list, 'region' );       
+            }
+            
+        /**
          * Add dropdown option values to settings option page
          * @since 1.0.0 (description)
          * @param array|string array $array_list list of values, $lista required settings list
          * @return string html
          */
-		public function get_api_options( array $array_list, $lista ) {
+        public function get_api_options( array $array_list, $lista ) {
 
                 global $dealer_map_settings;
                 $option_list = '';
-				$count = 0;
-				
-				foreach ( $array_list as $key => $value ) {  
-				
-					// If no option value exist, set the first one as selected.
-					if ( ( $count == 0 ) && ( empty( $dealer_map_settings['api_'. $lista] ) ) ) {
-						$selected = 'selected="selected"';
-					} else {
-						$selected = ( $dealer_map_settings['api_'. $lista] == $value ) ? 'selected="selected"' : '';
-					}
-					
-					$option_list .= '<option value="' . esc_attr( $value ) . '" ' . $selected . '>' . esc_html( $key ) . '</option>';
-					$count++;
-				}
-												
-				return $option_list;					
-		}
+                $count = 0;
+                
+                foreach ( $array_list as $key => $value ) {  
+                
+                    // If no option value exist, set the first one as selected.
+                    if ( ( $count == 0 ) && ( empty( $dealer_map_settings['api_'. $lista] ) ) ) {
+                        $selected = 'selected="selected"';
+                    } else {
+                        $selected = ( $dealer_map_settings['api_'. $lista] == $value ) ? 'selected="selected"' : '';
+                    }
+                    
+                    $option_list .= '<option value="' . esc_attr( $value ) . '" ' . $selected . '>' . esc_html( $key ) . '</option>';
+                    $count++;
+                }
+                                                
+                return $option_list;                    
+        }
         
     }
 }        

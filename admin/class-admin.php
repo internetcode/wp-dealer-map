@@ -120,8 +120,7 @@ if ( !class_exists( 'Dealer_Map_Admin' ) ) {
                 $table->prepare_items();
 
                 // verify the nonce field generated near the bulk actions menu
-                $nonce = isset($_REQUEST['_wpnonce']) ? esc_attr($_REQUEST['_wpnonce']) : '';
-                if( ! wp_verify_nonce( $nonce, 'bulk-' . $table->_args['plural'] ) && $nonce != '' ) 
+                if( !isset($_REQUEST['_wpnonce']) || !wp_verify_nonce( $_REQUEST['_wpnonce'], 'bulk-' . $table->_args['plural'] ) ) 
                     wp_die('Busted!');
 
                 $message = '';
